@@ -1,1 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일본어 복습</title>
 
+<style>
+body{
+    font-family: Arial, sans-serif;
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+    background:#f5f7fb;
+}
+
+h1{
+    text-align:center;
+}
+
+.card{
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+    margin-top:20px;
+}
+
+.jp{
+    font-size:2rem;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.answer{
+    display:none;
+    margin-top:20px;
+    padding:15px;
+    background:#eef6ff;
+    border-radius:10px;
+    font-size:1.1rem;
+}
+
+.buttons{
+    margin-top:20px;
+    text-align:center;
+}
+
+button{
+    margin:5px;
+    padding:10px 20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.show{background:#4caf50;color:white;}
+.next{background:#2196f3;color:white;}
+.sound{background:#ff9800;color:white;}
+.shuffle{background:#9c27b0;color:white;}
+
+.progress{
+    text-align:center;
+    margin-top:15px;
+    color:#666;
+}
+</style>
+</head>
+<body>
+
+<h1>🇯🇵 일본어 복습</h1>
+
+<div class="card">
+
+<div id="question" class="jp"></div>
+
+<div class="buttons">
+<button class="sound" onclick="speak()">🔊 발음</button>
+<button class="show" onclick="showAnswer()">정답 보기</button>
+</div>
+
+<div id="answer" class="answer"></div>
+
+<div class="buttons">
+<button class="next" onclick="nextCard()">다음</button>
+<button class="shuffle" onclick="shuffleCards()">랜덤 섞기</button>
+</div>
+
+<div id="progress" class="progress"></div>
+
+</div>
+
+<script>
+
+let cards = [
+
+{
+jp:"午前中（ごぜんちゅう）",
+ko:"오전 내내, 오전 중"
+},
+
+{
+jp:"午前（ごぜん）",
+ko:"오전"
+},
+
+{
+jp:"準備（じゅんび）",
+ko:"준비"
+},
+
+{
+jp:"用意（ようい）",
+ko:"준비, 마련, 갖춰두기"
+},
+
+{
+jp:"日常生活（にちじょうせいかつ）",
+ko:"일상생활"
+},
+
+{
+jp:"以前（いぜん）",
+ko:"이전"
+},
+
+{
+jp:"前（まえ）",
+ko:"전, 앞"
+},
+
+{
+jp:"カフェ",
+ko:"카페"
+},
+
+{
+jp:"喫茶店（きっさてん）",
+ko:"다방, 카페"
+},
+
+{
+jp:"喫煙（きつえん）",
+ko:"흡연"
+},
+
+{
+jp:"喫煙者（きつえんしゃ）",
+ko:"흡연자"
+},
+
+{
+jp:"タバコをやめる",
+ko:"담배를 끊다"
+},
+
+{
+jp:"禁煙（きんえん）する",
+ko:"금연하다"
+},
+
+{
+jp:"幸運（こううん）にも",
+ko:"다행히도, 운 좋게"
+},
+
+{
+jp:"量（りょう）",
+ko:"양"
+},
+
+{
+jp:"好きになろうと頑張った",
+ko:"좋아하려고 노력했다"
+},
+
+{
+jp:"好きになろうとした",
+ko:"좋아하려고 했다"
+},
+
+{
+jp:"集中できる環境（かんきょう）",
+ko:"집중할 수 있는 환경"
+},
+
+{
+jp:"大きいモニター",
+ko:"큰 모니터"
+},
+
+{
+jp:"便利（べんり）さ",
+ko:"편리함"
+},
+
+{
+jp:"諦める（あきらめる）",
+ko:"포기하다"
+},
+
+{
+jp:"コワーキングスペース",
+ko:"코워킹 스페이스"
+},
+
+{
+jp:"車がない生活には戻れない",
+ko:"차 없는 생활로는 돌아갈 수 없다"
+},
+
+{
+jp:"中東（ちゅうとう）の戦争",
+ko:"중동 전쟁"
+}
+
+];
+
+let current = 0;
+
+function loadCard(){
+    document.getElementById("question").innerText = cards[current].jp;
+    document.getElementById("answer").style.display="none";
+    document.getElementById("answer").innerHTML="";
+    document.getElementById("progress").innerText =
+        `${current+1} / ${cards.length}`;
+}
+
+function showAnswer(){
+    document.getElementById("answer").style.display="block";
+    document.getElementById("answer").innerHTML =
+        `<strong>${cards[current].ko}</strong>`;
+}
+
+function nextCard(){
+    current++;
+    if(current>=cards.length){
+        current=0;
+    }
+    loadCard();
+}
+
+function speak(){
+
+    let utter = new SpeechSynthesisUtterance(cards[current].jp);
+
+    utter.lang="ja-JP";
+    utter.rate=0.9;
+
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utter);
+}
+
+function shuffleCards(){
+
+    for(let i=cards.length-1;i>0;i--){
+        let j=Math.floor(Math.random()*(i+1));
+        [cards[i],cards[j]]=[cards[j],cards[i]];
+    }
+
+    current=0;
+    loadCard();
+}
+
+loadCard();
+
+</script>
+
+</body>
+</html>
