@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일본어 단어 복습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1C1B19;
+    --paper:#F7F3EC;
+    --paper-dim:#EDE7DA;
+    --stamp:#C94A36;
+    --stamp-soft:#C94A3622;
+    --muted:#8B8478;
+    --moss:#3D6B5C;
+    --moss-soft:#3D6B5C1f;
+    --line:#1C1B1922;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(circle at 15% 8%, #2A2826 0%, transparent 45%),
+      radial-gradient(circle at 85% 92%, #242220 0%, transparent 45%);
+    color:var(--paper);
+    font-family:'Noto Sans KR', sans-serif;
+    min-height:100vh;
+    padding:0 0 64px;
+  }
+
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    padding:48px 20px 28px;
+    text-align:center;
+    position:relative;
+  }
+
+  .eyebrow{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-size:13px;
+    letter-spacing:0.18em;
+    color:var(--stamp);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+
+  h1{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-weight:900;
+    font-size:30px;
+    margin:0 0 6px;
+    color:var(--paper);
+    letter-spacing:-0.01em;
+  }
+
+  .sub{
+    font-size:14px;
+    color:var(--muted);
+    margin:0;
+  }
+
+  /* stamp strip = progress */
+  .stamp-strip{
+    display:flex;
+    justify-content:center;
+    gap:7px;
+    margin-top:22px;
+    flex-wrap:wrap;
+    max-width:480px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .stamp-dot{
+    width:9px;height:9px;
+    border-radius:50%;
+    border:1.5px solid var(--muted);
+    opacity:0.5;
+    transition:all .25s ease;
+  }
+  .stamp-dot.done{
+    background:var(--stamp);
+    border-color:var(--stamp);
+    opacity:1;
+    transform:scale(1.15);
+  }
+
+  .progress-label{
+    margin-top:10px;
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:0.02em;
+  }
+  .progress-label b{ color:var(--stamp); font-weight:700; }
+
+  /* ---------- CARD LIST ---------- */
+  .list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-top:8px;
+  }
+
+  .card{
+    background:var(--paper);
+    border-radius:18px;
+    color:var(--ink);
+    cursor:pointer;
+    user-select:none;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 1px 0 rgba(0,0,0,0.25), 0 10px 24px -14px rgba(0,0,0,0.6);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:active{ transform:scale(0.985); }
+
+  .card.flipped{
+    background:var(--paper-dim);
+  }
+
+  .card-face{
+    padding:20px 22px 18px;
+  }
+
+  .card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  .term{
+    font-family:'Noto Sans KR', sans-serif;
+    font-weight:700;
+    font-size:17px;
+    line-height:1.45;
+    letter-spacing:0;
+  }
+
+  .star{
+    color:var(--stamp);
+    font-size:13px;
+    letter-spacing:1px;
+    margin-bottom:5px;
+    font-weight:700;
+    min-height:14px;
+  }
+
+  .hint-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:10px;
+  }
+
+  .hint{
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
+  .badge{
+    flex-shrink:0;
+    width:30px;height:30px;
+    border-radius:50%;
+    border:1.6px solid var(--stamp);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--stamp);
+    font-size:13px;
+    font-weight:700;
+    font-family:'Zen Maru Gothic', sans-serif;
+    transform:rotate(-8deg);
+    transition:all .2s ease;
+  }
+  .card.flipped .badge{
+    background:var(--stamp);
+    color:var(--paper);
+    transform:rotate(-8deg) scale(1.05);
+  }
+
+  /* reveal section */
+  .reveal{
+    max-height:0;
+    opacity:0;
+    overflow:hidden;
+    transition:max-height .32s ease, opacity .28s ease, padding .32s ease;
+    padding:0 22px;
+  }
+  .card.flipped .reveal{
+    max-height:600px;
+    opacity:1;
+    padding:0 22px 20px;
+  }
+
+  .divider{
+    height:1px;
+    background:var(--line);
+    margin:2px 0 14px;
+  }
+
+  .jp-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+
+  .jp-display{
+    font-family:'Zen Maru Gothic','Noto Sans JP', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    line-height:1.7;
+    color:var(--ink);
+    letter-spacing:0.01em;
+  }
+  .jp-display ruby, .jp-display rt{
+    font-weight:500;
+  }
+
+  .speak-btn{
+    flex-shrink:0;
+    width:38px;height:38px;
+    border-radius:50%;
+    border:1.6px solid var(--moss);
+    background:var(--moss-soft);
+    color:var(--moss);
+    font-size:16px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .15s ease;
+  }
+  .speak-btn:hover{
+    background:var(--moss);
+    color:var(--paper);
+  }
+  .speak-btn:active{
+    transform:scale(0.92);
+  }
+
+  .example{
+    font-size:13.5px;
+    color:#4A4640;
+    line-height:1.6;
+    font-family:'Noto Sans JP','Noto Sans KR', sans-serif;
+    background:var(--moss-soft);
+    border-left:3px solid var(--moss);
+    padding:9px 12px;
+    border-radius:4px;
+    margin-top:8px;
+  }
+  .example .jp{ display:block; margin-bottom:3px; color:var(--moss); font-weight:500;}
+
+  /* ---------- FOOTER ---------- */
+  .footer-note{
+    text-align:center;
+    margin-top:38px;
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.7;
+  }
+
+  .reset-btn{
+    display:block;
+    margin:18px auto 0;
+    background:none;
+    border:1.4px solid var(--muted);
+    color:var(--muted);
+    font-family:'Noto Sans KR', sans-serif;
+    font-size:12.5px;
+    padding:9px 18px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:all .2s ease;
+  }
+  .reset-btn:hover{
+    border-color:var(--stamp);
+    color:var(--stamp);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .badge, .reveal, .stamp-dot{ transition:none !important; }
+  }
+
+  @media (max-width:480px){
+    h1{font-size:25px;}
+    .term{font-size:18.5px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">★ 일본 예능 보다가 캐치한 단어</div>
+    <h1>일본어 단어 복습</h1>
+    <p class="sub">한국어 뜻을 누르면 일본어 표현이 나와요</p>
+
+    <div class="stamp-strip" id="stampStrip"></div>
+    <div class="progress-label"><b id="doneCount">0</b> / <span id="totalCount">0</span> 확인 완료</div>
+  </header>
+
+  <div class="wrap">
+    <div class="list" id="cardList"></div>
+
+    <div class="footer-note">
+      ★ = 다시 볼 것&nbsp;&nbsp;·&nbsp;&nbsp;★★ = 꼭 외울 것
+      <button class="reset-btn" id="resetBtn">전체 다시 보기로 초기화</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const data = [
+  {
+    star: "",
+    meaning: "모자 (머리에 쓰는 패션 아이템 / 캡)",
+    jpDisplay: "帽子（ぼうし）",
+    jpPlain: "帽子",
+    example: null
+  },
+  {
+    star: "★",
+    meaning: "복수하다 / 리벤지하다",
+    jpDisplay: "復讐（ふくしゅう）する",
+    jpPlain: "復讐する",
+    example: { jp: "復習（ふくしゅう）는 review", kr: "발음 같지만 한자·뜻 다름 — 復讐(복수) ≠ 復習(복습)" }
+  },
+  {
+    star: "",
+    meaning: "✖ 잘못된 표현 — '대리만족'은 일본어로 이렇게 안 씀",
+    jpDisplay: "代理（だいり）満足（まんぞく）",
+    jpPlain: "代理満足",
+    example: { jp: "代理＝대리, 満足＝만족", kr: "단어는 맞지만 이렇게 합쳐 쓰는 표현 아님, 주의" }
+  },
+  {
+    star: "★",
+    meaning: "유사 체험 / 대리 체험",
+    jpDisplay: "疑似（ぎじ）体験（たいけん）",
+    jpPlain: "疑似体験",
+    example: null
+  },
+  {
+    star: "★★",
+    meaning: "동료",
+    jpDisplay: "同僚（どうりょう）",
+    jpPlain: "同僚",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "능력",
+    jpDisplay: "能力（のうりょく）",
+    jpPlain: "能力",
+    example: null
+  },
+  {
+    star: "★",
+    meaning: "회복하기 위해서, 온천에 몸을 담가야 한다",
+    jpDisplay: "回復（かいふく）するために、温泉（おんせん）に浸（つ）からなきゃいけない",
+    jpPlain: "回復するために、温泉に浸からなきゃいけない",
+    example: { jp: "浸（つ）かる＝몸을 담그다", kr: "～なきゃいけない＝～해야 한다 (회화체)" }
+  },
+  {
+    star: "",
+    meaning: "코미디언 (개그맨)",
+    jpDisplay: "お笑い芸人（げいにん）",
+    jpPlain: "お笑い芸人",
+    example: { jp: "バカリズム", kr: "예능에서 자주 나오는 코미디언 이름 (예시)" }
+  },
+  {
+    star: "",
+    meaning: "촬영 장소",
+    jpDisplay: "撮影（さつえい）場所（ばしょ）",
+    jpPlain: "撮影場所",
+    example: { jp: "富士山（ふじさん）", kr: "예: 후지산이 촬영 장소로 나옴" }
+  },
+  {
+    star: "★★",
+    meaning: "찾다 → 찾았다 (발견하다 → 발견했다)",
+    jpDisplay: "見（み）つける → 見（み）つけた",
+    jpPlain: "見つける",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "일본 개그(예능)를 이해하는 건 어렵다고 생각한다",
+    jpDisplay: "日本（にほん）のお笑いを理解（りかい）するのは難（むずか）しいと思（おも）う",
+    jpPlain: "日本のお笑いを理解するのは難しいと思う",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "모두가 웃을 수 있다",
+    jpDisplay: "みんなが笑（わら）える",
+    jpPlain: "みんなが笑える",
+    example: { jp: "＝みんなが笑うことができる", kr: "笑える＝笑うことができる의 줄임 표현 (가능형)" }
+  },
+  {
+    star: "★",
+    meaning: "말을 잘한다 (입이 야무지다 / 말솜씨가 좋다)",
+    jpDisplay: "口（くち）が上手（うま）い",
+    jpPlain: "口が上手い",
+    example: null
+  },
+  {
+    star: "★",
+    meaning: "말을 아주 잘한다 (口が上手い보다 더 강조된 느낌)",
+    jpDisplay: "口（くち）が達者（たっしゃ）",
+    jpPlain: "口が達者",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "이기다 / 패배시키다 / 압도하다",
+    jpDisplay: "打（う）ち負（ま）かす",
+    jpPlain: "打ち負かす",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "천재 변호사",
+    jpDisplay: "天才（てんさい）弁護士（べんごし）",
+    jpPlain: "天才弁護士",
+    example: null
+  }
+];
+
+const listEl = document.getElementById('cardList');
+const stampStrip = document.getElementById('stampStrip');
+const doneCountEl = document.getElementById('doneCount');
+const totalCountEl = document.getElementById('totalCount');
+
+totalCountEl.textContent = data.length;
+
+const flipped = new Set();
+
+function renderStamps(){
+  stampStrip.innerHTML = data.map((_, i) =>
+    `<div class="stamp-dot ${flipped.has(i) ? 'done' : ''}"></div>`
+  ).join('');
+  doneCountEl.textContent = flipped.size;
+}
+
+function renderCards(){
+  listEl.innerHTML = data.map((item, i) => `
+    <div class="card ${flipped.has(i) ? 'flipped' : ''}" data-idx="${i}">
+      <div class="card-face">
+        <div class="card-top">
+          <div>
+            <div class="star">${item.star}</div>
+            <div class="term">${item.meaning}</div>
+          </div>
+          <div class="badge">確</div>
+        </div>
+        <div class="hint-row">
+          <div class="hint">눌러서 일본어 표현 확인</div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="divider"></div>
+        <div class="jp-row">
+          <div class="jp-display">${item.jpDisplay}</div>
+          <button class="speak-btn" data-jp="${item.jpPlain.replace(/"/g, '&quot;')}" title="발음 듣기" aria-label="발음 듣기">🔊</button>
+        </div>
+        ${item.example ? `
+          <div class="example">
+            <span class="jp">${item.example.jp}</span>
+            ${item.example.kr}
+          </div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  listEl.querySelectorAll('.card').forEach(cardEl => {
+    cardEl.addEventListener('click', (e) => {
+      if(e.target.closest('.speak-btn')) return;
+      const idx = parseInt(cardEl.dataset.idx);
+      if(flipped.has(idx)) flipped.delete(idx);
+      else flipped.add(idx);
+      renderCards();
+      renderStamps();
+    });
+  });
+
+  listEl.querySelectorAll('.speak-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      speak(btn.dataset.jp);
+    });
+  });
+}
+
+function speak(text){
+  if(!('speechSynthesis' in window)){
+    alert('이 브라우저는 음성 읽기를 지원하지 않습니다.');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ja-JP';
+  utter.rate = 0.85;
+  const voices = window.speechSynthesis.getVoices();
+  const jaVoice = voices.find(v => v.lang === 'ja-JP') || voices.find(v => v.lang.startsWith('ja'));
+  if(jaVoice) utter.voice = jaVoice;
+  window.speechSynthesis.speak(utter);
+}
+
+// preload voices (some browsers load async)
+if('speechSynthesis' in window){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  flipped.clear();
+  renderCards();
+  renderStamps();
+});
+
+renderCards();
+renderStamps();
+</script>
+
+</body>
+</html>
