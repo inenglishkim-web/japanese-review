@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일본어 단어 복습 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1C1B19;
+    --paper:#F7F3EC;
+    --paper-dim:#EDE7DA;
+    --stamp:#C94A36;
+    --stamp-soft:#C94A3622;
+    --muted:#8B8478;
+    --moss:#3D6B5C;
+    --moss-soft:#3D6B5C1f;
+    --line:#1C1B1922;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(circle at 15% 8%, #2A2826 0%, transparent 45%),
+      radial-gradient(circle at 85% 92%, #242220 0%, transparent 45%);
+    color:var(--paper);
+    font-family:'Noto Sans KR', sans-serif;
+    min-height:100vh;
+    padding:0 0 64px;
+  }
+
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    padding:48px 20px 28px;
+    text-align:center;
+    position:relative;
+  }
+
+  .eyebrow{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-size:13px;
+    letter-spacing:0.18em;
+    color:var(--stamp);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+
+  h1{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-weight:900;
+    font-size:30px;
+    margin:0 0 6px;
+    color:var(--paper);
+    letter-spacing:-0.01em;
+  }
+
+  .sub{
+    font-size:14px;
+    color:var(--muted);
+    margin:0;
+  }
+
+  /* stamp strip = progress */
+  .stamp-strip{
+    display:flex;
+    justify-content:center;
+    gap:7px;
+    margin-top:22px;
+    flex-wrap:wrap;
+    max-width:480px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .stamp-dot{
+    width:9px;height:9px;
+    border-radius:50%;
+    border:1.5px solid var(--muted);
+    opacity:0.5;
+    transition:all .25s ease;
+  }
+  .stamp-dot.done{
+    background:var(--stamp);
+    border-color:var(--stamp);
+    opacity:1;
+    transform:scale(1.15);
+  }
+
+  .progress-label{
+    margin-top:10px;
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:0.02em;
+  }
+  .progress-label b{ color:var(--stamp); font-weight:700; }
+
+  /* ---------- CARD LIST ---------- */
+  .list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-top:8px;
+  }
+
+  .card{
+    background:var(--paper);
+    border-radius:18px;
+    color:var(--ink);
+    cursor:pointer;
+    user-select:none;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 1px 0 rgba(0,0,0,0.25), 0 10px 24px -14px rgba(0,0,0,0.6);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:active{ transform:scale(0.985); }
+
+  .card.flipped{
+    background:var(--paper-dim);
+  }
+
+  .card-face{
+    padding:20px 22px 18px;
+  }
+
+  .card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  .term{
+    font-family:'Noto Sans KR', sans-serif;
+    font-weight:700;
+    font-size:17px;
+    line-height:1.45;
+    letter-spacing:0;
+  }
+
+  .star{
+    color:var(--stamp);
+    font-size:13px;
+    letter-spacing:1px;
+    margin-bottom:5px;
+    font-weight:700;
+    min-height:14px;
+  }
+
+  .hint-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:10px;
+  }
+
+  .hint{
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
+  .badge{
+    flex-shrink:0;
+    width:30px;height:30px;
+    border-radius:50%;
+    border:1.6px solid var(--stamp);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--stamp);
+    font-size:13px;
+    font-weight:700;
+    font-family:'Zen Maru Gothic', sans-serif;
+    transform:rotate(-8deg);
+    transition:all .2s ease;
+  }
+  .card.flipped .badge{
+    background:var(--stamp);
+    color:var(--paper);
+    transform:rotate(-8deg) scale(1.05);
+  }
+
+  /* reveal section */
+  .reveal{
+    max-height:0;
+    opacity:0;
+    overflow:hidden;
+    transition:max-height .32s ease, opacity .28s ease, padding .32s ease;
+    padding:0 22px;
+  }
+  .card.flipped .reveal{
+    max-height:600px;
+    opacity:1;
+    padding:0 22px 20px;
+  }
+
+  .divider{
+    height:1px;
+    background:var(--line);
+    margin:2px 0 14px;
+  }
+
+  .jp-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+
+  .jp-display{
+    font-family:'Zen Maru Gothic','Noto Sans JP', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    line-height:1.7;
+    color:var(--ink);
+    letter-spacing:0.01em;
+  }
+  .jp-display ruby, .jp-display rt{
+    font-weight:500;
+  }
+
+  .speak-btn{
+    flex-shrink:0;
+    width:38px;height:38px;
+    border-radius:50%;
+    border:1.6px solid var(--moss);
+    background:var(--moss-soft);
+    color:var(--moss);
+    font-size:16px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .15s ease;
+  }
+  .speak-btn:hover{
+    background:var(--moss);
+    color:var(--paper);
+  }
+  .speak-btn:active{
+    transform:scale(0.92);
+  }
+
+  .example{
+    font-size:13.5px;
+    color:#4A4640;
+    line-height:1.6;
+    font-family:'Noto Sans JP','Noto Sans KR', sans-serif;
+    background:var(--moss-soft);
+    border-left:3px solid var(--moss);
+    padding:9px 12px;
+    border-radius:4px;
+    margin-top:8px;
+  }
+  .example .jp{ display:block; margin-bottom:3px; color:var(--moss); font-weight:500;}
+
+  /* ---------- FOOTER ---------- */
+  .footer-note{
+    text-align:center;
+    margin-top:38px;
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.7;
+  }
+
+  .reset-btn{
+    display:block;
+    margin:18px auto 0;
+    background:none;
+    border:1.4px solid var(--muted);
+    color:var(--muted);
+    font-family:'Noto Sans KR', sans-serif;
+    font-size:12.5px;
+    padding:9px 18px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:all .2s ease;
+  }
+  .reset-btn:hover{
+    border-color:var(--stamp);
+    color:var(--stamp);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .badge, .reveal, .stamp-dot{ transition:none !important; }
+  }
+
+  @media (max-width:480px){
+    h1{font-size:25px;}
+    .term{font-size:18.5px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">★ 일본어 회화 노트</div>
+    <h1>일본어 단어 복습 2</h1>
+    <p class="sub">한국어 뜻을 누르면 일본어 표현이 나와요</p>
+
+    <div class="stamp-strip" id="stampStrip"></div>
+    <div class="progress-label"><b id="doneCount">0</b> / <span id="totalCount">0</span> 확인 완료</div>
+  </header>
+
+  <div class="wrap">
+    <div class="list" id="cardList"></div>
+
+    <div class="footer-note">
+      <button class="reset-btn" id="resetBtn">전체 다시 보기로 초기화</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const data = [
+  {
+    star: "",
+    meaning: "딱 좋은 기온/온도",
+    jpDisplay: "ちょうどいい気温（きおん）",
+    jpPlain: "ちょうどいい気温",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "태풍",
+    jpDisplay: "台風（たいふう）",
+    jpPlain: "台風",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "즐겨야 한다",
+    jpDisplay: "楽しむべき",
+    jpPlain: "楽しむべき",
+    example: { jp: "～べき", kr: "～해야 한다 (should ~)" }
+  },
+  {
+    star: "",
+    meaning: "며칠 전 / 2,3일 전",
+    jpDisplay: "数日前（すうじつまえ）／2，3日前（にさんにちまえ）",
+    jpPlain: "数日前、2、3日前",
+    example: { jp: "a few days ago", kr: "둘 다 '며칠 전'이라는 뜻으로 같이 씀" }
+  },
+  {
+    star: "",
+    meaning: "같이 있다",
+    jpDisplay: "一緒（いっしょ）にいる",
+    jpPlain: "一緒にいる",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "공유하는 게 보통/일반적",
+    jpDisplay: "シェアするのが普通（ふつう）",
+    jpPlain: "シェアするのが普通",
+    example: { jp: "共有（きょうゆう）する", kr: "シェアする와 같은 뜻 (공유하다)" }
+  },
+  {
+    star: "",
+    meaning: "나누다",
+    jpDisplay: "分（わ）ける",
+    jpPlain: "分ける",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "만약 아내가 콜라를 마셔도, 전혀 괜찮다",
+    jpDisplay: "もし奥（おく）さんがコーラを飲（の）んでも、全然（ぜんぜん）オッケー。",
+    jpPlain: "もし奥さんがコーラを飲んでも、全然オッケー。",
+    example: { jp: "もし～ても", kr: "만약 ~해도 (가정/양보 표현)" }
+  },
+  {
+    star: "",
+    meaning: "반복하다",
+    jpDisplay: "繰（く）り返（かえ）す",
+    jpPlain: "繰り返す",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "의논하다 / 이야기를 나누다",
+    jpDisplay: "話（はな）し合（あ）う",
+    jpPlain: "話し合う",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "부부 (결혼한 커플)",
+    jpDisplay: "夫婦（ふうふ）",
+    jpPlain: "夫婦",
+    example: { jp: "結婚しているカップル", kr: "결혼한 커플이라는 뜻" }
+  },
+  {
+    star: "",
+    meaning: "더",
+    jpDisplay: "もっと",
+    jpPlain: "もっと",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "놀라다 → 더 놀랐어요",
+    jpDisplay: "驚（おどろ）く → もっと驚（おどろ）きました",
+    jpPlain: "驚く、もっと驚きました",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "국제결혼",
+    jpDisplay: "国際（こくさい）結婚（けっこん）",
+    jpPlain: "国際結婚",
+    example: { jp: "違う国の人同士が結婚すること", kr: "서로 다른 나라 사람들끼리 결혼하는 것" }
+  },
+  {
+    star: "",
+    meaning: "조심하다",
+    jpDisplay: "気（き）を付（つ）ける",
+    jpPlain: "気を付ける",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "~해야 한다 → 문화 차이에 조심해야 한다",
+    jpDisplay: "～なきゃいけない → 文化（ぶんか）の違（ちが）いに気（き）を付（つ）けなきゃいけない",
+    jpPlain: "文化の違いに気を付けなきゃいけない",
+    example: { jp: "have to", kr: "회화체로 자주 쓰는 의무 표현" }
+  },
+  {
+    star: "",
+    meaning: "과테말라와 일본의 혼혈 (하프)",
+    jpDisplay: "グアテマラと日本（にほん）のハーフ",
+    jpPlain: "グアテマラと日本のハーフ",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "너는 문제를 너무 심각하게 받아들이는 거야",
+    jpDisplay: "君（きみ）は問題（もんだい）を深刻（しんこく）に捉（とら）えすぎだよ",
+    jpPlain: "君は問題を深刻に捉えすぎだよ",
+    example: { jp: "You are taking this too seriously", kr: "～すぎる＝너무 ~하다" }
+  },
+  {
+    star: "",
+    meaning: "심각하게",
+    jpDisplay: "深刻（しんこく）に",
+    jpPlain: "深刻に",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "받아들이다 / 파악하다",
+    jpDisplay: "捉（とら）える",
+    jpPlain: "捉える",
+    example: { jp: "see / take", kr: "～すぎる와 함께 자주 쓰임 (too ~)" }
+  },
+  {
+    star: "",
+    meaning: "앞으로의 미래를 너무 걱정한다",
+    jpDisplay: "先（さき）の未来（みらい）のことを心配（しんぱい）しすぎる",
+    jpPlain: "先の未来のことを心配しすぎる",
+    example: { jp: "心配する＝worry about", kr: "～すぎる＝너무 ~하다" }
+  },
+  {
+    star: "",
+    meaning: "남자친구",
+    jpDisplay: "彼氏（かれし）",
+    jpPlain: "彼氏",
+    example: null
+  },
+  {
+    star: "",
+    meaning: "다음에 웨이터가 실수하지 않도록 알려줄게",
+    jpDisplay: "次（つぎ）、ウェイターの人（ひと）が、ミスしないように教（おし）えてあげる。",
+    jpPlain: "次、ウェイターの人が、ミスしないように教えてあげる。",
+    example: null
+  }
+];
+
+const listEl = document.getElementById('cardList');
+const stampStrip = document.getElementById('stampStrip');
+const doneCountEl = document.getElementById('doneCount');
+const totalCountEl = document.getElementById('totalCount');
+
+totalCountEl.textContent = data.length;
+
+const flipped = new Set();
+
+function renderStamps(){
+  stampStrip.innerHTML = data.map((_, i) =>
+    `<div class="stamp-dot ${flipped.has(i) ? 'done' : ''}"></div>`
+  ).join('');
+  doneCountEl.textContent = flipped.size;
+}
+
+function renderCards(){
+  listEl.innerHTML = data.map((item, i) => `
+    <div class="card ${flipped.has(i) ? 'flipped' : ''}" data-idx="${i}">
+      <div class="card-face">
+        <div class="card-top">
+          <div>
+            <div class="star">${item.star}</div>
+            <div class="term">${item.meaning}</div>
+          </div>
+          <div class="badge">確</div>
+        </div>
+        <div class="hint-row">
+          <div class="hint">눌러서 일본어 표현 확인</div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="divider"></div>
+        <div class="jp-row">
+          <div class="jp-display">${item.jpDisplay}</div>
+          <button class="speak-btn" data-jp="${item.jpPlain.replace(/"/g, '&quot;')}" title="발음 듣기" aria-label="발음 듣기">🔊</button>
+        </div>
+        ${item.example ? `
+          <div class="example">
+            <span class="jp">${item.example.jp}</span>
+            ${item.example.kr}
+          </div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  listEl.querySelectorAll('.card').forEach(cardEl => {
+    cardEl.addEventListener('click', (e) => {
+      if(e.target.closest('.speak-btn')) return;
+      const idx = parseInt(cardEl.dataset.idx);
+      if(flipped.has(idx)) flipped.delete(idx);
+      else flipped.add(idx);
+      renderCards();
+      renderStamps();
+    });
+  });
+
+  listEl.querySelectorAll('.speak-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      speak(btn.dataset.jp);
+    });
+  });
+}
+
+function speak(text){
+  if(!('speechSynthesis' in window)){
+    alert('이 브라우저는 음성 읽기를 지원하지 않습니다.');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ja-JP';
+  utter.rate = 0.85;
+  const voices = window.speechSynthesis.getVoices();
+  const jaVoice = voices.find(v => v.lang === 'ja-JP') || voices.find(v => v.lang.startsWith('ja'));
+  if(jaVoice) utter.voice = jaVoice;
+  window.speechSynthesis.speak(utter);
+}
+
+// preload voices (some browsers load async)
+if('speechSynthesis' in window){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  flipped.clear();
+  renderCards();
+  renderStamps();
+});
+
+renderCards();
+renderStamps();
+</script>
+
+</body>
+</html>
