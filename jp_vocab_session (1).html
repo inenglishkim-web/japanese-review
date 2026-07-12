@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일본어 복습 — 身だしなみ・外見</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: sans-serif; font-size: 14px; padding: 16px; background: #f5f5f5; }
+h2 { font-size: 14px; margin: 16px 0 8px; border-bottom: 1.5px solid #333; padding-bottom: 4px; }
+.section-note { font-size: 11px; color: #aaa; margin-bottom: 8px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 4px; }
+.card {
+  background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  padding: 10px; cursor: pointer; min-height: 82px;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; transition: border-color .15s;
+}
+.card:hover { border-color: #aaa; }
+.card.flipped .front { display: none; }
+.card .back { display: none; }
+.card.flipped .back { display: block; }
+.kr { font-size: 13px; color: #444; font-weight: 500; }
+.jp { font-size: 17px; font-weight: bold; color: #222; }
+.hira { font-size: 12px; color: #777; margin-top: 3px; }
+.hint { font-size: 10px; color: #ccc; margin-top: 5px; }
+.speak-btn {
+  display: inline-block;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  user-select: none;
+  vertical-align: middle;
+}
+.speak-btn:hover { opacity: 0.7; }
+
+/* 예문 섹션 */
+.sent-card {
+  background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  padding: 12px 14px; cursor: pointer; margin-bottom: 7px;
+}
+.sent-card .jp-sent { font-size: 14px; color: #222; line-height: 1.8; }
+.sent-card .kr-sent { font-size: 13px; color: #555; margin-top:6px; display:none;
+  border-top: 0.5px solid #eee; padding-top: 6px; line-height: 1.7; }
+.sent-card.flipped .kr-sent { display: block; }
+.sent-card .flip-hint { font-size: 10px; color: #ccc; margin-top: 5px; }
+
+button#resetAll {
+  font-size: 12px; padding: 5px 12px;
+  border: 1px solid #ccc; border-radius: 6px;
+  background: #fff; cursor: pointer; margin-bottom: 14px;
+}
+button#resetAll:hover { background: #f0f0f0; }
+</style>
+</head>
+<body>
+
+<button id="resetAll">전체 닫기</button>
+
+<h2>💄 身だしなみ・外見 — 외모·차림</h2>
+<div class="grid" id="g1"></div>
+
+<h2>🧠 性格・考え方 — 성격·사고방식</h2>
+<div class="grid" id="g2"></div>
+
+<h2>🛍 買い物・プレゼント — 쇼핑·선물</h2>
+<div class="grid" id="g3"></div>
+
+<h2>📱 趣味・SNS — 취미·SNS</h2>
+<div class="grid" id="g4"></div>
+
+<h2>💬 よく使う表現 — 자주 쓰는 표현</h2>
+<div class="grid" id="g5"></div>
+
+<h2>📝 今日の例文 — 오늘의 예문</h2>
+<p class="section-note">눌러서 한국어 해석 확인 / 🔊 눌러서 발음 듣기</p>
+<div id="sents"></div>
+
+<script>
+function speak(text, e) {
+  if (e) e.stopPropagation();
+  const clean = text.replace(/（[^）]*）/g, '').replace(/\([^)]*\)/g, '').trim();
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.lang = 'ja-JP';
+  utter.rate = 0.9;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+const sections = {
+  g1: [
+    {kr:"머리카락", jp:"髪／髪の毛", hira:"かみ／かみのけ"},
+    {kr:"헤어스타일", jp:"髪型", hira:"かみがた"},
+    {kr:"염색 / 머리를 염색하다", jp:"ヘアカラー／髪の毛を染める", hira:"かみのけをそめる"},
+    {kr:"패션 스타일", jp:"ファッションスタイル", hira:""},
+  ],
+  g2: [
+    {kr:"남의 시선을 신경 쓰다", jp:"人の目を気にする", hira:"ひとのめをきにする"},
+    {kr:"회사원", jp:"会社員", hira:"かいしゃいん"},
+    {kr:"언행 (말과 행동)", jp:"言動", hira:"げんどう"},
+    {kr:"고집, 강한 취향", jp:"こだわり", hira:""},
+    {kr:"이상하다", jp:"おかしい／変", hira:"おかしい／へん"},
+    {kr:"음식에 대한 고집이 너무 강하다", jp:"食べ物のこだわりが強すぎる", hira:"たべもののこだわりがつよすぎる"},
+  ],
+  g3: [
+    {kr:"올리브영", jp:"オリーブヤング", hira:""},
+    {kr:"나르다", jp:"運ぶ", hira:"はこぶ"},
+    {kr:"날랐습니다", jp:"運びました", hira:"はこびました"},
+    {kr:"나도 모르게 너무 많이 사 버리다", jp:"つい買いすぎてしまう", hira:"ついかいすぎてしまう"},
+    {kr:"너무 많이 사다", jp:"買いすぎる", hira:"かいすぎる"},
+    {kr:"선물, 기념품", jp:"お土産", hira:"おみやげ"},
+    {kr:"말차", jp:"抹茶", hira:"まっちゃ"},
+    {kr:"노인, 어르신", jp:"お年寄りの人", hira:"おとしよりのひと"},
+    {kr:"답례, 답례 선물", jp:"お返し", hira:"おかえし"},
+    {kr:"감사, 감사의 인사", jp:"お礼", hira:"おれい"},
+  ],
+  g4: [
+    {kr:"가장 마음에 드는 것, 최애", jp:"お気に入り", hira:"おきにいり"},
+    {kr:"최애, 가장 응원하는 사람", jp:"推し", hira:"おし"},
+    {kr:"바이럴되다, 화제가 되다", jp:"バズる", hira:""},
+    {kr:"사랑을 전하고 싶다든가 (아이묭)", jp:"愛を伝えたいだとか", hira:"あいをつたえたいだとか"},
+  ],
+  g5: [
+    {kr:"아이들이 크면", jp:"子どもたちが大きくなったら", hira:"こどもたちがおおきくなったら"},
+    {kr:"답장이 늦다", jp:"返信が遅い", hira:"へんしんがおそい"},
+    {kr:"하루", jp:"１日", hira:"いちにち"},
+    {kr:"이틀", jp:"２日", hira:"ふつか"},
+  ],
+};
+
+const sents = [
+  {jp:"私はあまり人の目を気にしません。", kr:"저는 남의 시선을 별로 신경 쓰지 않습니다."},
+  {jp:"最近、髪の毛を染めました。", kr:"최근에 머리를 염색했습니다."},
+  {jp:"旅行に行くと、ついお土産を買いすぎてしまいます。", kr:"여행을 가면 나도 모르게 기념품을 너무 많이 삽니다. （つい = 무심코 / 나도 모르게）"},
+  {jp:"抹茶のお菓子がお気に入りです。", kr:"말차 과자를 가장 좋아합니다."},
+  {jp:"韓国ではオリーブヤングが人気です。", kr:"한국에서는 올리브영이 인기가 있습니다."},
+  {jp:"子どもたちが大きくなったら、一緒に旅行したいです。", kr:"아이들이 크면 함께 여행하고 싶습니다."},
+  {jp:"最近、返信が遅い人が増えた気がします。", kr:"최근에는 답장이 늦은 사람이 늘어난 것 같습니다."},
+];
+
+function makeCard(item) {
+  const d = document.createElement('div');
+  d.className = 'card';
+  d.innerHTML = `
+    <div class="front">
+      <div class="kr">${item.kr}</div>
+      <div class="hint">탭해서 확인</div>
+    </div>
+    <div class="back">
+      <div class="jp">
+        ${item.jp}
+        <span class="speak-btn" data-text="${item.jp}">🔊</span>
+      </div>
+      ${item.hira ? `<div class="hira">(${item.hira})</div>` : ''}
+    </div>`;
+  d.addEventListener('click', () => d.classList.toggle('flipped'));
+  return d;
+}
+
+Object.entries(sections).forEach(([id, items]) => {
+  const g = document.getElementById(id);
+  items.forEach(item => g.appendChild(makeCard(item)));
+});
+
+const sentDiv = document.getElementById('sents');
+sents.forEach(s => {
+  const d = document.createElement('div');
+  d.className = 'sent-card';
+  d.innerHTML = `
+    <div class="jp-sent">
+      ${s.jp}
+      <span class="speak-btn" data-text="${s.jp}">🔊</span>
+    </div>
+    <div class="kr-sent">${s.kr}</div>
+    <div class="flip-hint">눌러서 해석 보기</div>`;
+  d.addEventListener('click', () => d.classList.toggle('flipped'));
+  sentDiv.appendChild(d);
+});
+
+// 🔊 버튼 이벤트 (카드 뒤집기 방지)
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('speak-btn')) {
+    e.stopPropagation();
+    speak(e.target.dataset.text);
+  }
+});
+
+document.getElementById('resetAll').addEventListener('click', () => {
+  document.querySelectorAll('.card.flipped, .sent-card.flipped').forEach(el => el.classList.remove('flipped'));
+});
+</script>
+</body>
+</html>
